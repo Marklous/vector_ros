@@ -11,19 +11,7 @@ RUN mkdir -p /catkin_ws/src/vector_ros
 RUN echo "source /catkin_ws/devel/setup.bash" >> ~/.bashrc
 
 # Install required dependencies
-RUN apt-get update && apt-get install -y \
-    python3-yaml \
-    python3-pip \
-    expect \
-    python-catkin-tools \
-    python3-dev \
-    python3-catkin-pkg-modules \
-    python3-numpy \
-    ros-melodic-cv-bridge
-
-RUN pip3 install \
-    rospkg \
-    catkin_pkg
+RUN apt-get update && apt-get install -y python-catkin-tools python3-pip expect
 
 # Install up-to-date rosunit so we'll get the patch for Python3
 RUN cd /catkin_ws/src/ && \
@@ -70,8 +58,11 @@ RUN /ros_entrypoint.sh /bin/bash -c "mkdir /cv_bridge_build_ws && \
 
 WORKDIR /catkin_ws
 
+RUN apt-get purge -y geoclue-2.0
+
 CMD /bin/bash -c "catkin_make --pkg vector_ros && \
                   source /catkin_ws/devel/setup.bash && \
+                  rosdep install vector_ros && \
                   source /cv_bridge_build_ws/install/setup.bash --extend && \
                   export QT_X11_NO_MITSHM=1 && \
                   roslaunch vector_ros vector.launch"
